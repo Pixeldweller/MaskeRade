@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        Fictional sample for the MaskeRade plugin. Every name, company, host and key in this project is made up.
+        MaskeRade case "package prefix" / "external contract": the coordinates below belong to our own artifact.
+    -->
+    <groupId>de.falkenrath.kranich</groupId>
+    <artifactId>kranich-tourplaner</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Kranich Tourplaner</name>
+    <description>Internal tour planning of Falkenrath Logistik GmbH (codename Kranich)</description>
+    <url>https://git.falkenrath.lan/kranich/tourplaner</url>
+
+    <organization>
+        <name>Falkenrath Logistik GmbH</name>
+        <url>https://www.falkenrath-logistik.de</url>
+    </organization>
+
+    <!-- MaskeRade case "person" + "mail" -->
+    <developers>
+        <developer>
+            <id>jwessling</id>
+            <name>Jorinde Wessling</name>
+            <email>j.wessling@falkenrath-logistik.de</email>
+            <organization>Falkenrath Logistik GmbH</organization>
+        </developer>
+    </developers>
+
+    <!-- MaskeRade case "host" -->
+    <scm>
+        <connection>scm:git:ssh://git@build01.falkenrath.lan/kranich/tourplaner.git</connection>
+        <url>https://git.falkenrath.lan/kranich/tourplaner</url>
+    </scm>
+
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-boot.version>3.5.16</spring-boot.version>
+        <junit.version>5.14.4</junit.version>
+    </properties>
+
+    <!-- BOM import instead of spring-boot-starter-parent: only needs artifacts that are cached locally -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- before the Spring Boot BOM so it wins: JUnit 5.14.4 (incl. platform launcher) is cached locally -->
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>kranich-tourplaner</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <parameters>true</parameters>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.3</version>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

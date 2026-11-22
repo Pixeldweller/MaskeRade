@@ -1,0 +1,73 @@
+<!-- Plugin Configuration File: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>com.pixeldweller.maskerade</id>
+    <name>MaskeRade</name>
+    <vendor url="https://github.com/Pixeldweller">pixeldweller</vendor>
+
+    <description><![CDATA[
+        Pseudonymize a project <i>before</i> an AI agent works on it, and turn the agent's changes back into the
+        real names <i>afterwards</i>.<br/>
+        <br/>
+        <ul>
+          <li><b>Terms</b> — a veil list (real term → placeholder) with all spellings derived automatically:
+              <code>FalkenrathLogistik</code>, <code>falkenrath_logistik</code>, <code>FALKENRATH_LOGISTIK</code>,
+              <code>falkenrath-logistik</code> … are replaced in the same form. Stored outside the project.</li>
+          <li><b>Scanner</b> — finds what is worth veiling: word parts of identifiers that are neither everyday words
+              nor library vocabulary, names after <code>@author</code>, mail addresses, internal hosts, IPs, JDBC URLs,
+              user names in paths, and secrets.</li>
+          <li><b>Mirror</b> — a pseudonymized copy (contents <i>and</i> paths) with a fresh git baseline. Every file is
+              checked for <code>unveil(veil(x)) == x</code> byte for byte, binary files stay out, and the whole mirror
+              is searched for residues before it is released.</li>
+          <li><b>Unveil</b> — the agent's changes with real names in IntelliJ's diff, applied file by file or hunk by
+              hunk as one undoable command, or shelved as a patch.</li>
+        </ul>
+        Deterministic and offline — no AI inside the plugin.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.vcs</depends>
+    <depends>com.intellij.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="MaskeRade"
+                    anchor="right"
+                    factoryClass="com.pixeldweller.maskerade.ui.MaskeRadeToolWindowFactory"
+                    icon="/icons/toolWindowMaskeRade.svg"/>
+
+        <notificationGroup id="MaskeRade" displayType="BALLOON"/>
+
+        <projectConfigurable
+            parentId="tools"
+            instance="com.pixeldweller.maskerade.settings.MaskeRadeConfigurable"
+            id="com.pixeldweller.maskerade.settings"
+            displayName="MaskeRade"
+            nonDefaultProject="true"/>
+    </extensions>
+
+    <actions>
+        <group id="MaskeRade.Menu" text="MaskeRade" popup="true" icon="/icons/toolWindowMaskeRade.svg">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <action id="MaskeRade.ShowTerms" class="com.pixeldweller.maskerade.ui.MaskeRadeActions$ShowTerms"
+                    text="Edit Veil List" description="Open the MaskeRade veil list"/>
+            <action id="MaskeRade.Scan" class="com.pixeldweller.maskerade.ui.MaskeRadeActions$Scan"
+                    text="Scan for Terms to Veil" description="Find names, hosts, mails and secrets worth veiling"/>
+            <separator/>
+            <action id="MaskeRade.CreateMirror" class="com.pixeldweller.maskerade.ui.MaskeRadeActions$CreateMirror"
+                    text="Create Mirror" description="Create the pseudonymized mirror of the project"/>
+            <action id="MaskeRade.OpenTerminal" class="com.pixeldweller.maskerade.ui.MaskeRadeActions$OpenTerminal"
+                    text="Open Mirror in Terminal" description="Start a terminal in the mirror to run the agent there"/>
+            <action id="MaskeRade.OpenExplorer" class="com.pixeldweller.maskerade.ui.MaskeRadeActions$OpenExplorer"
+                    text="Open Mirror in Explorer" description="Show the mirror folder"/>
+            <action id="MaskeRade.Unveil" class="com.pixeldweller.maskerade.ui.MaskeRadeActions$Unveil"
+                    text="Unveil Changes…" description="Turn the agent's changes back into real names and apply them"/>
+            <action id="MaskeRade.CompareFolders" class="com.pixeldweller.maskerade.ui.MaskeRadeActions$CompareFolders"
+                    text="Compare Folders → Patch…" description="Diff two folders (veiled or not) and save the difference as a patch"/>
+            <action id="MaskeRade.ExportPlainCompact" class="com.pixeldweller.maskerade.ui.MaskeRadeActions$ExportPlainCompact"
+                    text="Export Compact Copy (No Veil)…" description="Copy only what is needed to understand the project, without renaming"/>
+            <action id="MaskeRade.RefreshBaseline" class="com.pixeldweller.maskerade.ui.MaskeRadeActions$RefreshBaseline"
+                    text="Refresh Mirror Baseline" description="Re-create the mirror from the current original"/>
+            <action id="MaskeRade.DeleteMirror" class="com.pixeldweller.maskerade.ui.MaskeRadeActions$DeleteMirror"
+                    text="Delete Mirror" description="Delete the mirror folder"/>
+        </group>
+    </actions>
+</idea-plugin>

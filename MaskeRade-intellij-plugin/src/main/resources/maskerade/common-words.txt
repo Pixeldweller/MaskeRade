@@ -1,0 +1,231 @@
+# MaskeRade: everyday words that are never veil candidates. Lower case, whitespace-separated, '#' = comment.
+# Extend per project in Settings -> Tools -> MaskeRade ("Exception words").
+
+# ── English: general vocabulary ──────────────────────────────────────────────
+a able about above accept accepted access according account across act action active activity actual actually add added
+address admin after again against age agent ago agree ahead air all allow allowed almost alone along already also
+alternative although always am among amount an analysis and animal annual another answer any anyone anything anyway
+appear apply approach area argue arm around arrive art article as ask assume at attack attempt attention author
+available average avoid away back bad bag ball bank bar base basic basis be beat beautiful because become bed been
+before begin behavior behaviour behind being believe below benefit best better between beyond big bill bit black block
+blood blue board body book born both box boy break bring brother budget build building business but buy by call camera
+campaign can cancel candidate capital car card care career carry case catch cause cell center centre central century
+certain certainly chair challenge chance change character charge check child choice choose church citizen city civil
+claim class clean clear clearly close coach code cold collection college color colour come commercial common community
+company compare complete computer concern condition conference confirm consider consumer contain content continue
+control cost could country couple course court cover create crime cultural culture cup current customer cut dark data
+date daughter day dead deal death debate decade decide decision deep default defense degree delete deliver delivery
+democrat describe design despite detail determine develop development die difference different difficult dinner
+direction director discover discuss discussion disease do doctor dog door down draw dream drive drop drug during each
+early east easy eat economic economy edge education effect effort eight either election else employee end energy enjoy
+enough enter entire environment environmental error especially establish even evening event ever every everybody
+everyone everything evidence exactly example executive exist expect experience expert explain eye face fact factor fail
+fall family far fast father fear federal feel feeling few field fight figure fill film final finally financial find
+fine finger finish fire firm first fish five floor fly focus follow food foot for force foreign forget form former
+forward four free friend from front full fund future game garden gas general generation get girl give glass go goal
+good government great green ground group grow growth guess gun guy hair half hand hang happen happy hard have he head
+health hear heart heat heavy help her here herself high him himself his history hit hold home hope hospital hot hotel
+hour house how however huge human hundred husband idea identify if image imagine impact important improve in include
+including increase indeed indicate individual industry information inside instead institution interest interesting
+international interview into investment involve issue it item its itself job join just keep key kid kill kind kitchen
+know knowledge land language large last late later laugh law lawyer lay lead leader learn least leave left leg legal
+less let letter level lie life light like likely line list listen little live local long look lose loss lot love low
+machine magazine main maintain major majority make man manage management manager many market marriage material matter
+may maybe me mean measure media medical meet meeting member memory mention message method middle might military million
+mind minute miss mission model modern moment money month more morning most mother mouth move movement movie much music
+must my myself name nation national natural nature near nearly necessary need network never new news newspaper next
+nice night no none nor north not note nothing notice now number occur of off offer office officer official often oh oil
+ok okay old on once one only onto open operation opportunity option or order organization other others our out outside
+over own owner page pain painting paper parent part participant particular particularly partner party pass past
+patient pattern pay peace people per perform performance perhaps period person personal phone physical pick picture
+piece place plan plant play player point police policy political politics poor popular population position positive
+possible power practice prepare present president pressure pretty prevent price private probably problem process
+produce product production professional professor program programme project property protect prove provide public pull
+purpose push put quality question quickly quite race radio raise range rate rather reach read ready real reality
+realize really reason receive recent recently recognize record red reduce reflect region relate relationship religious
+remain remember remove report represent require research resource respond response responsibility rest result return
+reveal rich right rise risk road rock role room rule run safe same save say scene school science scientist score sea
+season seat second section security see seek seem sell send senior sense series serious serve service set seven
+several shake share she shoot short shot should shoulder show side sign significant similar simple simply since sing
+single sister sit site situation six size skill skin small smile so social society soldier some somebody someone
+something sometimes son song soon sort sound source south southern space speak special specific speech spend sport
+spring staff stage stand standard star start state statement station stay step still stock stop store story strategy
+street strong structure student study stuff style subject success successful such suddenly suffer suggest summer
+support sure surface system table take talk task tax teach teacher team technology television tell ten tend term test
+than thank that the their them themselves then theory there these they thing think third this those though thought
+thousand threat three through throughout throw thus time to today together tonight too top total tough toward towards
+town trade traditional training travel treat treatment tree trial trip trouble true truth try turn two type under
+understand unit until up upon us use usually value various very victim view violence visit voice vote wait walk wall
+want war watch water way we weapon wear week weight well west western what whatever when where whether which while
+white who whole whom whose why wide wife will win wind window wish with within without woman wonder word work worker
+world worry would write writer wrong yard yeah year yes yet you young your yourself zero zone
+accordingly accuracy accurate achieve acquire adapt adjust advance advanced advantage advice affect afford agency
+aggregate aid aim alarm album alert align alive amend analyse analyze anchor angle announce annually anonymous
+anticipate apart apparent appeal append appliance applicant application appoint appreciate appropriate approval
+approve approx approximate arbitrary archive arise arrange arrangement arrival arrow aside aspect assess asset assign
+assignment assist assistant associate association assure attach attachment attend attribute audience audit authority
+auto automatic automatically availability aware award axis backup balance band banner barrier basket batch battery
+bear become begin beginning belong beneath beside bid bind birth blank blind blob bold bond bonus boolean boost border
+borrow bottom bound boundary brand brief bright broad broken browse browser bubble bucket buffer bulk bundle burden
+burn button cache calculate calculation calendar cap capable capacity caption capture cargo carrier cart cascade cash
+cast catalog catalogue category cease ceiling certificate chain channel chapter chart chat cheap child chip chunk
+circle circuit cite clause click client climate clock clone cloud cluster coast collect column combine comfort command
+comment commit committee communicate comparison compatible compensation compile complain complex component compose
+composite compound compress compute concept conclusion concrete conduct confidence config configuration configure
+conflict connect connection consent consequence conservative consist consistent constant constraint construct consult
+contact context contract contrast contribute convert cookie coordinate copy core corner correct correction correspond
+counter county coverage crash credit criteria critical cross crowd currency cursor curve cycle daily damage dashboard
+database dataset deadline debt debug decimal declare decline decode decrease dedicated defect defer deficit define
+definition delay delegate demand demo demonstrate density department depend dependency deploy deposit depth deputy
+derive descend description descriptor desk destination destroy detect device dialog dialogue diff digit digital
+dimension direct directory disable disc discount disk dispatch display distance distinct distribute district divide
+document domain double download draft driver dual due dummy duplicate duration dynamic earn ease edit editor effective
+efficient elapsed element eligible eliminate email embed emergency emit empty enable encode encounter encrypt engine
+enhance ensure entity entry envelope equal equipment equivalent escape essential estate estimate evaluate exact exceed
+except exception excess exchange exclude execute exercise expand expansion expense expire explicit export expose
+expression extend extension external extra extract facility fallback false fault feature fee feed fetch file filter
+firm fit fix flag flat flexible float flow folder font footer format formula forum frame framework frequency fresh
+function functional gap gate gateway gather generate generic global grade grant graph grid guarantee guard guest guide
+handle handler hardware hash header heading health height hidden hide hierarchy highlight hint hold holder holiday
+hook host icon ignore illegal immediate implement import inbox incident income index infinite inform initial input
+insert install instance integer integrate integrity intent interface internal interval invalid inventory invoice
+invoke label lane latency launch layer layout leak lease length library license licence lifecycle limit link linear
+load loan locale location lock log logic login logout loop magic mail manual map mapping margin mark marker mask
+master match matrix max maximum medium menu merge meta metadata metric middleware migrate migration min minimum mirror
+missing mobile mode modify module monitor mount multiple mutable native navigate negative nest nested node normal null
+numeric object offline offset online operator optimize optional origin output overview package padding pair panel
+parameter parent parse parser partial password patch path payload peer pending permission persist pipeline pixel
+placeholder platform plugin pointer pool port portal post prefix premium preview primary print priority privacy
+procedure profile progress prompt proof property protocol provider proxy publish query queue quota quote random rank
+ratio raw recipient reference refresh register registry reject release reload remote render repeat replace reply
+repository request reset resolve restore retry reverse review revision root rotate route router row runtime sample
+scale scan schedule schema scope screen script scroll search secret secure segment select selection sender sequence
+server session setting setup shadow shape sheet shift shortcut signal signature skip slot snapshot socket sort span
+spec split stack stamp static status storage stream string submit subscription suffix summary switch symbol sync
+syntax tab tag target template temporary tenant text thread threshold ticket tile timeout timer timestamp title token
+tool toolbar topic trace track transaction transfer transform transition trigger trim tuple update upload url user
+username utility valid validate validation validator variable vector vendor verify version virtual visible volume
+warning web widget width wizard workflow wrap wrapper yield
+able abstract accent accessible acknowledge activate actor acute addition adult afternoon agreement airport alias alpha
+amazing ambient annotation anomaly antenna appendix apple applet arc arch arena array artifact artist assert asynchronous
+atom audio augment automation avatar baby badge bake barcode baseline bay beacon bean bell belt beta bin binary bio
+bird bitmap blend blog blueprint boat bonus bootstrap bot bottle branch bread bridge broker brush builder bus cabinet
+cable cake canvas carbon carousel castle cat cave chamber champion charset chest chicken chief circle citation clamp
+clip clipboard closure coin collapse collector combo comet compiler composer concurrency condenser connector console
+container controller converter coordinator copper cotton coupon crawler crop crown crystal cube cursor custom cylinder
+daemon deck decorator delta demon descriptor detector diagram diamond dictionary director dispatcher dock document dot
+dragon drawer drill drone duck dust eagle echo editor egg emitter emulator encoder engineer enum epoch evaluator event
+executor explorer exporter facade factory falcon farm feeder fence fiber figure finder flash fleet flower flux fog
+forest formatter fox fuel funnel galaxy garage generator ghost gift glow gold graphic gravity guardian hammer harbor
+harbour hawk helper hero highway hint horizon horse hub hunter importer indicator injector inspector instrument
+interceptor interpreter iterator jar jewel journal kernel keyboard kit knife ladder lake lamp lantern laser leaf
+ledger lemon lens lever lighthouse lion listener loader locator locker logger lookup lunar magnet mailbox manifest
+manager mapper marble marshaller matcher meadow mediator mentor merchant meteor meter migrator miner mint mixer monkey
+moon motor mountain mouse navigator needle nest notifier oak observer ocean orbit orchestrator owl painter palette
+parcel parser pearl pebble pencil pepper phantom pilot pine pioneer pipe planet planner plate plaza pocket poller
+portal printer prism processor producer profiler projector prototype provider publisher pump puzzle radar rail
+rainbow raven reactor reader receiver recorder reducer reflector registrar relay renderer reporter resolver retriever
+ribbon ring river robot rocket roller rose runner sail salt satellite scanner scheduler scout sculptor sender sentinel
+serializer shell shield ship silver sink sketch slider snake solar spark spider spinner splitter spot sprite squirrel
+stamp starter steel stone storm stream strip sugar summit sun supplier swan sword tank teapot telescope terminal
+thunder tiger timber tower tracer tracker trader translator transmitter trunk turtle umbrella valve vault vehicle
+velocity viewer village visitor visualizer wagon walker wallet watcher wave weaver whale wheel wolf worker wrapper zebra
+kilometre kilometres kilometer kilometers mile miles metre metres meter meters pallet pallets parcel parcels headwind
+tailwind crosswind storm warning weather sunny cloudy rain snow wind winds north south east west northern southern
+eastern western ready planned planner planning plans demo demos sample samples example examples fake real live dummy
+never sequence sequences slug slugs
+
+# ── English: grammar forms that show up in identifiers ───────────────────────
+added adding adds allows applied applies asked based builds called calls changed changes checked checks closed closes
+contains copied counts created creates deleted deletes enabled enables exists expected failed fails filled finds fixed
+found gets given goes handled has having held ignored included includes increased is isn kept known left listed loaded
+loads made makes mapped marked means moved named needs opened opens ordered orders parsed passed planned played posted
+processed provided read reads received removed removes replaced reported requested required returned returns running
+saved says seen selected sent sets showed shown skipped sorted started stopped stored takes told tried turned updated
+updates used uses using validated wants was went were works written wrote
+
+# ── Programming & Java/Spring/web vocabulary ─────────────────────────────────
+abs accessor accumulator ack acl addr adapter advice aes agg ajax algo algorithm alloc allocate allocator annotations
+ansi api apis app apps arg args argv arity arraylist ascii asm assertion assertions async atomic auth authenticate
+authentication authorization autowired avg aws await backend backoff bean beans bigdecimal biginteger bool boot bootstrap
+btn buf bytes callback callbacks camel cancel cert certs cfg changelog charsequence checkbox checksum ci cid cidr classname
+classloader classpath cli cmd cnt codec codegen collectors colspan comparable comparator compareto concat concurrent
+cond conf configs configurer conn const constructor consumer contentType controller controllers cors cpu crlf crud csrf
+csv css ctx cwd dao datasource datetime db dbo dbs ddl dec decl deps deque deref deserialize deserializer dest dev devops
+dict dir dirs disp dist dns doc docs dom dto dtos dup elem elems els emit emitter enc endpoint endpoints entities entrypoint
+enum enums env eof eq equals err errno errors esc eval evt exe exec exit exp ext extends fd fifo fileName filename fk fmt
+fn foo bar baz qux frontend fs ftp func gc gen getter getters gid gif git github gitlab gmt gpu gradle graphql grep gui gz
+gzip hashcode hashmap hashset hdr hex homepage hostname href html http https id ids idx iface iff impl impls inc init
+initializer inline inner instanceof int ints io ioexception ip ipc iso iter iterable jar java javadoc javax jdbc jdk jit
+jpa jpeg jpg jre js json jsonpath jsx junit jvm jwt kafka kb kotlin kv lambda lang len lhs lib libs linkedlist linux
+localhost localdate localdatetime localtime lst lt lte macos main makefile malloc mb md5 memcache mgr microservice mime
+misc mkdir mock mockito mocks mockmvc msg msgs mutex mvc mvn mysql namespace nano nanos nav nbsp nginx nil noop nosql
+npm ns nullable num nums oauth obj objectmapper objs oid ok ops opt optimizer opts orm os param params pdf perf pid pk
+pkg png pojo pom pos postgres postgresql pq pre prev printf proc prod prop props proto ptr px py qa qty readme realm
+recursion recursive redis ref refs regex regexp rel req res resp rest restcontroller ret rhs rmi rnd rpc rss rsa rx sb
+sdk sec seq ser servlet setter setters sha sha1 sha256 sql src ssh ssl sso stderr stdin stdout str stringbuilder
+struct sub svc svg sys tcp tmp todo tomcat toml ts tx txn txt typeof typescript ubuntu ucs udp ui uid uint uml unicode
+unix uri urls usr utc utf util utils uuid val vals var vars vcs vm vue wasm websocket whitespace wiki win windows www
+xml xmlns xsd xsi xss yaml yml zip zookeeper
+abstractions accessors adapters aggregates annotated annotation apache appender appenders applet arguments artifactid
+aspect aspects asserts assertj autoconfigure autoconfiguration batching benchmark benchmarks bindings bom bootstrapping
+builders bytecode caching callable cglib charsets classifier codehaus collections commons compiler configurable
+configurations constraints converters coroutine coroutines dataformat datatype deserialization dependencies dependency
+developer developers devtools dispatcher eclipse ehcache entities enumeration executable executors fasterxml filters
+flyway formatter freemarker generics glassfish google groovy groupid gson guava handlers hamcrest hibernate hikari
+hikaricp httpclient interceptors intellij jakarta jackson jacoco javafx jaxb jaxrs jboss jersey jetbrains jetty jmx
+jndi jodatime jooq jsoup jupiter junit4 junit5 kotlinx liquibase listeners log4j logback lombok lucene maven
+micrometer modelmapper modules mojo mongodb netty nimbus okhttp openapi opentest4j oracle parent plexus plugins
+projectreactor protobuf quarkus reactor reactive resilience retrofit runtime scheduler schemas selenium serialization
+serializers servlets slf4j snakeyaml sonatype spock spring springboot springframework sqlite starter starters
+surefire swagger testcontainers testing tests thymeleaf transactional undertow validator vertx webflux webmvc wildfly
+xerces xmlunit zipkin databind stereotype unchecked ordinal declared reflective masked configured startup notify
+repackage maske mvnw gradlew wrapper
+abstract assert boolean break byte case catch char class const continue default do double else enum extends final
+finally float for goto if implements import instanceof int interface long native new package private protected public
+return short static strictfp super switch synchronized this throw throws transient try void volatile while record
+sealed permits yield var true false null override overrides deprecated functional suppresswarnings safevarargs
+component service repository configuration controller bean value autowired qualifier primary lazy scope profile
+entity table column joincolumn id generatedvalue transactional valid notnull notblank notempty positive size min max
+pattern email past future digits getmapping postmapping putmapping deletemapping patchmapping requestmapping
+requestbody responsebody requestparam pathvariable requestheader responseentity responsestatus restcontrolleradvice
+exceptionhandler crossorigin springbootapplication springboottest autoconfiguremockmvc webmvctest datajpatest mockbean
+test beforeeach aftereach beforeall afterall displayname parameterizedtest valuesource nested disabled tag
+assertthat assertequals asserttrue assertfalse assertnull assertnotnull assertthrows containsexactly isequalto
+isinstanceof hassize extracting endswith startswith perform andexpect jsonpath contenttype mediatype
+
+# ── German: general vocabulary ───────────────────────────────────────────────
+aber ab abend acht alle allein aller alles als also alt alte alten am an andere anderen ander anfang angebot anlage
+antwort arbeit arbeiten art auch auf aufgabe aus ausgabe außen auto bahn bald bank bau baum bedarf beginn bei beide
+beim bei beispiel bekannt bereich bereit berg bericht beruf besser beste bestellung betrag betrieb bett bild bis bitte
+blatt bleiben blick boden brief bringen buch bund bürger büro chef da dabei dach damit dank dann darf darum das dass
+datei daten datum dauer davon dazu dein dem den denen denn der deren des deshalb dich die dienst dies diese diesem
+diesen dieser dieses ding dir doch dorf dort drei du durch eben ecke ein eine einem einen einer eines einfach eingang
+einmal eins ende endlich entwicklung er erde ergebnis erst erste es essen etwa etwas euch euer fach fahrt fall falsch
+familie farbe fehler feld fenster ferien fertig fest feuer film finden firma fisch fläche flug fluss folge form frage
+frau frei freund früh führung für fuß ganz garten gast gebäude geben gebiet gegen geld gelände gemeinde genau gerade
+gern gesamt geschäft gesellschaft gesetz gestern gewicht glas gleich glück grenze groß große grund gruppe gut haben
+hafen halb halle hals hand handel haus heute hier hilfe himmel hinten hoch hof hohe holz hotel hund ich ihm ihn ihnen
+ihr ihre im immer in inhalt innen ist ja jahr jede jeder jetzt jung kaffee kalt kamm kann karte kasse kauf kein keine
+kind kirche klar klasse klein knopf koch kommen kopf kosten kraft kreis kunde kunden kundin kurs kurz küste land lang
+lange lager lauf laut leben leer legen leicht leistung leute licht liebe liegen linie links liste luft machen mal man
+mann mannschaft markt maschine material mehr mein meine meer menge mensch messe meter miete mit mitte mittel mittag
+monat morgen müssen mutter nach nacht nah name nein neu neue neun nicht nichts noch nord norden null nummer nur ob oben
+oder offen oft ohne ort ost osten paar paket papier person platz plan post preis privat projekt punkt quelle rad rand
+rat raum recht rechts rede regel regen reich reihe reise rest richtig ring rot ruhe rund sache sagen satz schiff schnell
+schon schritt schule schwer see sehr sein seine seit seite selbst sicher sie sieben sind so sohn sollen sonne spiel
+sprache stadt stand stark statt stelle stern straße stück stunde suche süd süden tag tal teil termin text tief tier
+tisch tochter tor tour touren tun tür über uhr um und uns unser unten unter vater verkauf verkehr viel vier vogel voll
+vom von vor wagen wahl wald wand wann war ware warum was wasser weg weil weit welt wenig wenn wer werden werk wert west
+westen wetter wie wieder wind winter wir wo woche wohl wort zahl zeit zentrum ziel zimmer zug zum zur zwei zwischen
+abfahrt abholung absender adresse ankunft anschrift anzahl artikel auftrag aufträge ausfahrt auslieferung
+bestand bestellungen datenbank disposition empfänger entfernung export fahrer fahrzeug fahrzeuge fracht gewerbe
+gutschrift kilometer kundennummer ladung lieferant lieferung lieferungen logistik paletten palette planer planung
+rechnung route routen spedition sendung sendungen standort stopp stopps strecke tourplanung tourplaner touren transport
+umschlag versand verwaltung zustellung lieferschein auftragsnummer tournummer fahrplan haltestelle
+anwendung benutzer berechtigung dienste einstellung einstellungen schnittstelle verbindung verzeichnis
+ostwind südwind suedwind westwind sturm wetter regen sonnig deich hafenkontor gartenbau kontor nord süd
+gmbh ag kg se ltd inc llc co corp ug ohg ev
+
+# ── Fixed-kind context words the pattern detectors handle themselves ─────────
+de com org net io eu at ch uk us info biz example localhost lan local intern internal corp home invalid
