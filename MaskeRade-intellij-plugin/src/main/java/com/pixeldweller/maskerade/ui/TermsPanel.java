@@ -160,7 +160,8 @@ public final class TermsPanel extends JPanel implements Disposable {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 var generator = new PlaceholderGenerator(SeedStore.seed(project));
-                var corpus = String.join("\n", ProjectTexts.collect(project).values());
+                indicator.setText("MaskeRade: reading the project for collision checks");
+                var occurrences = new ProjectTexts.Occurrences(ProjectTexts.collect(project));
                 var used = new HashSet<String>();
                 for (var t : terms) {
                     used.add(Words.key(t.placeholder));
@@ -169,7 +170,7 @@ public final class TermsPanel extends JPanel implements Disposable {
                 for (int row : rows) {
                     var t = terms.get(row);
                     if (t.real.isBlank()) continue;
-                    Predicate<String> taken = p -> used.contains(Words.key(p)) || Collisions.occursIn(p, corpus)
+                    Predicate<String> taken = p -> used.contains(Words.key(p)) || occurrences.contains(p)
                             || prefixClash(p, used);
                     var s = generator.suggest(t.kind, t.real, taken);
                     used.add(Words.key(s));
@@ -241,7 +242,8 @@ public final class TermsPanel extends JPanel implements Disposable {
                 .withTitle("Import Veil List (real = placeholder)"), project, null);
         if (file == null) return;
         try {
-            var parsed = ProxyListFormat.parse(new String(file.contentsToByteArray(), StandardCharsets.UTF_8));
+            var bytes = com.intellij.openapi.application.ReadAction.compute(file::contentsToByteArray);
+            var parsed = ProxyListFormat.parse(new String(bytes, StandardCharsets.UTF_8));
             var keys = new HashSet<String>();
             terms.forEach(t -> keys.add(t.key()));
             int added = 0;

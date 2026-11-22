@@ -108,7 +108,7 @@ public final class FolderDiffDialog extends DialogWrapper {
         table.getColumnModel().getColumn(1).setPreferredWidth(JBUI.scale(90));
         table.getColumnModel().getColumn(2).setPreferredWidth(JBUI.scale(380));
         table.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) showSelected();
+            if (!e.getValueIsAdjusting()) com.intellij.openapi.application.WriteIntentReadAction.run((Runnable) this::showSelected);
         });
         notes.setEditable(false);
         notes.setLineWrap(true);
@@ -186,7 +186,7 @@ public final class FolderDiffDialog extends DialogWrapper {
 
             @Override
             public void onThrowable(@NotNull Throwable error) {
-                summary.setText("Comparison failed: " + error.getMessage());
+                summary.setText("Comparison failed: " + MirrorService.describe(error));
             }
         }.queue();
     }

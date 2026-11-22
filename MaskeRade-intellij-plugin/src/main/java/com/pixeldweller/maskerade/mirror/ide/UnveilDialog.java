@@ -91,7 +91,7 @@ public final class UnveilDialog extends DialogWrapper {
         table.getColumnModel().getColumn(2).setPreferredWidth(JBUI.scale(420));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) showSelected();
+            if (!e.getValueIsAdjusting()) withWriteIntent(this::showSelected);
         });
         notes.setEditable(false);
         notes.setLineWrap(true);
@@ -115,19 +115,19 @@ public final class UnveilDialog extends DialogWrapper {
                 new AbstractAction("Review Hunks…") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        reviewHunks();
+                        withWriteIntent(UnveilDialog.this::reviewHunks);
                     }
                 },
                 new AbstractAction("Shelve Selected") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        shelveSelected();
+                        withWriteIntent(UnveilDialog.this::shelveSelected);
                     }
                 },
                 new AbstractAction("Save as Patch…") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        savePatch();
+                        withWriteIntent(UnveilDialog.this::savePatch);
                     }
                 }};
     }
@@ -172,6 +172,15 @@ public final class UnveilDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
+        withWriteIntent(this::applySelected);
+    }
+
+    /** Dialog buttons run on the EDT without the write-intent lock (IntelliJ 2024.x+); VFS, documents and commands need it. */
+    private static void withWriteIntent(Runnable r) {
+        com.intellij.openapi.application.WriteIntentReadAction.run(r);
+    }
+
+    private void applySelected() {
         var chosen = selection();
         var direct = chosen.stream().filter(c -> !c.conflict()).toList();
         var conflicts = chosen.stream().filter(FileChange::conflict).toList();
@@ -377,7 +386,7 @@ public final class UnveilDialog extends DialogWrapper {
 
             @Override
             public void onThrowable(@NotNull Throwable error) {
-                MirrorService.getInstance(project).notifyUser("Patch not saved", error.getMessage(), NotificationType.ERROR);
+                MirrorService.getInstance(project).notifyUser("Patch not saved", MirrorService.describe(error), NotificationType.ERROR);
             }
         }.queue();
     }
@@ -404,7 +413,7 @@ public final class UnveilDialog extends DialogWrapper {
 
             @Override
             public void onThrowable(@NotNull Throwable error) {
-                MirrorService.getInstance(project).notifyUser("Shelving failed", error.getMessage(), NotificationType.ERROR);
+                MirrorService.getInstance(project).notifyUser("Shelving failed", MirrorService.describe(error), NotificationType.ERROR);
             }
         }.queue();
         close(OK_EXIT_CODE);

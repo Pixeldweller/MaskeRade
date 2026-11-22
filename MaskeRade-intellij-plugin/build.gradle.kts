@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.pixeldweller"
-version = "0.1-alpha"
+version = "0.2"
 
 repositories {
     // JUnit 4 is needed at test runtime by the IntelliJ test class loader; it is taken from the local Maven repository
@@ -45,6 +45,11 @@ intellijPlatform {
         }
 
         changeNotes = """
+            0.2: Compare any two folders (veiled or not) and save the difference as a patch, with file selection;
+            "Save as Patch…" when unveiling; compact mirror and plain compact export (no renaming); agent guards
+            optional; much faster scanner on large projects (no hang on minified / lock files, short read actions,
+            at most 2000 candidates); unreadable files are skipped instead of aborting; fixes for IntelliJ 2025
+            threading ("Access is allowed from write thread only").<br/>
             0.1-alpha: Initial release — term list with automatic spellings, candidate scanner,
             pseudonymized mirror of the project for AI agents and unveiling of their changes.
         """.trimIndent()

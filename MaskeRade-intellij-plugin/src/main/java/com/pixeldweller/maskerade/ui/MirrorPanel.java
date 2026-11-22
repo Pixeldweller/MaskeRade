@@ -35,16 +35,17 @@ public final class MirrorPanel extends JPanel implements Disposable {
         super(new BorderLayout());
         this.service = MirrorService.getInstance(project);
 
-        create.addActionListener(e -> service.createMirror());
-        terminal.addActionListener(e -> service.openInTerminal());
-        explorer.addActionListener(e -> service.openInExplorer());
-        unveil.addActionListener(e -> service.unveil());
-        baseline.addActionListener(e -> service.createMirror());
-        delete.addActionListener(e -> service.deleteMirror());
-        confirm.addActionListener(e -> service.confirmResidues());
-        refresh.addActionListener(e -> service.refreshStatus());
-        compare.addActionListener(e -> new com.pixeldweller.maskerade.mirror.ide.FolderDiffDialog(project).show());
-        exportPlain.addActionListener(e -> service.exportPlainCompact());
+        // Swing listeners run on the EDT without the write-intent lock (IntelliJ 2024.x+); actions get it implicitly
+        onClick(create, service::createMirror);
+        onClick(terminal, service::openInTerminal);
+        onClick(explorer, service::openInExplorer);
+        onClick(unveil, service::unveil);
+        onClick(baseline, service::createMirror);
+        onClick(delete, service::deleteMirror);
+        onClick(confirm, service::confirmResidues);
+        onClick(refresh, service::refreshStatus);
+        onClick(compare, () -> new com.pixeldweller.maskerade.mirror.ide.FolderDiffDialog(project).show());
+        onClick(exportPlain, service::exportPlainCompact);
 
         status.setFont(JBUI.Fonts.label().asBold());
         path.setForeground(UIUtil.getContextHelpForeground());
@@ -67,6 +68,10 @@ public final class MirrorPanel extends JPanel implements Disposable {
         service.addListener(this::update, this);
         update();
         service.refreshStatus();
+    }
+
+    private static void onClick(JButton button, Runnable action) {
+        button.addActionListener(e -> com.intellij.openapi.application.WriteIntentReadAction.run(action));
     }
 
     private static JButton button(String text, Icon icon) {

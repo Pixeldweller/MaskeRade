@@ -21,12 +21,14 @@ public final class PatternDetector {
 
     public record Finding(TermKind kind, String value, int score, String reason, int start, int end, boolean secret) {}
 
+    // every pattern starts only at a token boundary and has bounded repetitions: no backtracking blow-up on long
+    // tokens (Base64 blobs, minified code, lock-file hashes)
     private static final Pattern MAIL = Pattern.compile(
-            "(?<![\\w.%+-])[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}(?![\\w-])");
+            "(?<![\\w.%+-])[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]{1,63}(?:\\.[A-Za-z0-9-]{1,63}){0,8}\\.[A-Za-z]{2,24}(?![\\w-])");
     private static final Pattern JDBC = Pattern.compile("jdbc:[a-z0-9]+:[^\\s\"'<>`]+", Pattern.CASE_INSENSITIVE);
     private static final String INTERNAL_TLDS = "lan|local|intern|internal|corp|home|localdomain|private|priv";
     private static final Pattern HOST = Pattern.compile(
-            "(?<![\\w.@-])(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+(?:" + INTERNAL_TLDS
+            "(?<![\\w.@-])(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.){1,8}(?:" + INTERNAL_TLDS
                     + "|de|com|net|org|io|eu|at|ch|uk|info|biz|cloud|dev|app|nl|fr|it|es|pl|se|dk|no)(?![\\w-])(?!\\.[a-zA-Z])",
             Pattern.CASE_INSENSITIVE);
     private static final Pattern IP = Pattern.compile(
@@ -46,8 +48,8 @@ public final class PatternDetector {
             Pattern.compile("\\bxox[abposr]-[A-Za-z0-9-]{10,}"),
             Pattern.compile("\\bAIza[0-9A-Za-z_-]{35}\\b"));
     private static final Pattern SECRET_ASSIGNMENT = Pattern.compile(
-            "(?i)([\\w.-]*(?:password|passwd|pwd|secret|token|api[_.-]?key|apikey|access[_.-]?key|private[_.-]?key|credential|key))"
-                    + "[\"']?\\s*[:=]\\s*([\"']?)([^\\s\"'<>;,()]{8,})\\2");
+            "(?i)(?<![\\w.-])([\\w.-]{0,64}?(?:password|passwd|pwd|secret|token|api[_.-]?key|apikey|access[_.-]?key|private[_.-]?key|credential|key))"
+                    + "[\"']?[ \\t]{0,8}[:=][ \\t]{0,8}([\"']?)([^\\s\"'<>;,()]{8,512})\\2");
 
     private static final Set<String> PUBLIC_HOSTS = Set.of(
             "apache.org", "w3.org", "spring.io", "github.com", "gitlab.com", "jetbrains.com", "google.com", "oracle.com",

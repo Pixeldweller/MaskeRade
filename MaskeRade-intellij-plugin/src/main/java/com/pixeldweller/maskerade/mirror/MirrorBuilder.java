@@ -76,14 +76,23 @@ public final class MirrorBuilder {
         prepareDirectory(mirror);
 
         var globs = options.globs();
-        var files = listFiles(original, globs);
+        var unreadable = new ArrayList<String>();
+        var files = listFiles(original, globs, unreadable);
+        unreadable.forEach(u -> report.warnings.add("not readable, left out: " + u));
         if (options.compact()) report.compactSkipped = listFiles(original, options.unveilGlobs()).size() - files.size();
         var veiledPaths = new HashMap<String, String>();
         int done = 0;
         for (var rel : files) {
             if (cancelled.getAsBoolean()) throw new CancellationException();
             progress.accept("Veiling " + (++done) + "/" + files.size());
-            var bytes = Files.readAllBytes(original.resolve(rel));
+            byte[] bytes;
+            try {
+                bytes = Files.readAllBytes(original.resolve(rel));
+            } catch (IOException e) {
+                // locked by another process, no permission, cloud placeholder … — leave it out, don't abort
+                report.warnings.add("not readable, left out: " + rel + " (" + e.getClass().getSimpleName() + ": " + e.getMessage() + ")");
+                continue;
+            }
             var veiledPath = engine.veilPath(rel);
             if (!engine.unveilPath(veiledPath).equals(rel)) {
                 report.irreversible.add(new MirrorReport.Irreversible(rel, "path does not unveil to itself: " + veiledPath));
@@ -307,8 +316,20 @@ public final class MirrorBuilder {
 
     /** '/'-separated relative paths of all files that are not excluded, sorted. */
     static List<String> listFiles(Path root, Globs globs) throws IOException {
+        return listFiles(root, globs, new ArrayList<>());
+    }
+
+    /** @param unreadable collects files / folders that could not be visited (they are skipped, not fatal) */
+    static List<String> listFiles(Path root, Globs globs, List<String> unreadable) throws IOException {
         var out = new ArrayList<String>();
         Files.walkFileTree(root, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException e) {
+                if (file.equals(root)) return FileVisitResult.TERMINATE;
+                unreadable.add(rel(root, file) + " (" + e.getClass().getSimpleName() + ")");
+                return FileVisitResult.CONTINUE;
+            }
+
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                 if (dir.equals(root)) return FileVisitResult.CONTINUE;

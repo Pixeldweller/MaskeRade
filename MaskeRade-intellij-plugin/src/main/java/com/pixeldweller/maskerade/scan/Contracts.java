@@ -43,31 +43,70 @@ public final class Contracts {
      *               replacement lies inside one
      */
     public static String reasonFor(String path, String line, int column) {
-        var name = path.toLowerCase(Locale.ROOT).substring(path.lastIndexOf('/') + 1);
-        if (DOC_EXTENSIONS.stream().anyMatch(name::endsWith) || name.equals("license") || name.equals("notice")) return null;
-        boolean config = name.endsWith(".properties") || name.endsWith(".yml") || name.endsWith(".yaml") || name.endsWith(".env");
-        if (config) {
-            if (line.stripLeading().startsWith("#")) return null;
-            int sep = indexOfSeparator(line);
-            if (sep > 0) {
-                boolean inKey = column < 0 || column < sep;
-                if (inKey) return name.startsWith("messages") ? "message key" : "property key set from outside";
-                return matchRules(line.substring(sep + 1), column - sep - 1);
-            }
-        }
-        return matchRules(line, column);
+        return line(path, line).reasonAt(column);
     }
 
-    private static String matchRules(String line, int column) {
-        var url = URL.matcher(line);
-        while (url.find()) {
-            boolean inside = column < 0 || (column >= url.start() && column < url.end());
-            if (inside && !LOCAL_URL.matcher(url.group()).matches()) return URL_REASON;
+    /** Evaluates a line once; {@link Line#reasonAt} is then cheap for every replacement on it (long lines!). */
+    public static Line line(String path, String line) {
+        var name = path.toLowerCase(Locale.ROOT).substring(path.lastIndexOf('/') + 1);
+        if (DOC_EXTENSIONS.stream().anyMatch(name::endsWith) || name.equals("license") || name.equals("notice")) return Line.NONE;
+        boolean config = name.endsWith(".properties") || name.endsWith(".yml") || name.endsWith(".yaml") || name.endsWith(".env");
+        if (config) {
+            if (line.stripLeading().startsWith("#")) return Line.NONE;
+            int sep = indexOfSeparator(line);
+            if (sep > 0) {
+                var keyReason = name.startsWith("messages") ? "message key" : "property key set from outside";
+                return new Line(keyReason, sep, Rules.of(line.substring(sep + 1), sep + 1));
+            }
         }
-        for (var r : LINE_RULES) {
-            if (r.pattern.matcher(line).find()) return r.reason;
+        return new Line(null, -1, Rules.of(line, 0));
+    }
+
+    /** Contract information of one line. */
+    public static final class Line {
+        static final Line NONE = new Line(null, -1, new Rules(List.of(), null));
+
+        private final String keyReason;
+        private final int separator;
+        private final Rules rules;
+
+        private Line(String keyReason, int separator, Rules rules) {
+            this.keyReason = keyReason;
+            this.separator = separator;
+            this.rules = rules;
         }
-        return null;
+
+        /** @param column -1 = anywhere on the line */
+        public String reasonAt(int column) {
+            if (keyReason != null && (column < 0 || column < separator)) return keyReason;
+            return rules.reasonAt(column);
+        }
+    }
+
+    /** URL spans (absolute columns) and the first line rule that matches. */
+    private record Rules(List<int[]> urlSpans, String ruleReason) {
+        static Rules of(String text, int offset) {
+            var spans = new java.util.ArrayList<int[]>();
+            var url = URL.matcher(text);
+            while (url.find()) {
+                if (!LOCAL_URL.matcher(url.group()).matches()) spans.add(new int[]{url.start() + offset, url.end() + offset});
+            }
+            String reason = null;
+            for (var r : LINE_RULES) {
+                if (r.pattern.matcher(text).find()) {
+                    reason = r.reason;
+                    break;
+                }
+            }
+            return new Rules(spans, reason);
+        }
+
+        String reasonAt(int column) {
+            for (var s : urlSpans) {
+                if (column < 0 || (column >= s[0] && column < s[1])) return URL_REASON;
+            }
+            return ruleReason;
+        }
     }
 
     private static int indexOfSeparator(String line) {

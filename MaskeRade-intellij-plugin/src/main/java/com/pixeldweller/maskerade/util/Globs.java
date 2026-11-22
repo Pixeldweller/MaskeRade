@@ -56,6 +56,21 @@ public final class Globs {
         return globs;
     }
 
+    /**
+     * For scanning: the defaults plus generated / minified / lock files (they hold no names worth veiling and are
+     * slow to read), but hidden files stay in — a .github workflow or .env may well contain a host or a secret.
+     */
+    public static Globs forScan(List<String> extra) {
+        return forScan(extra, false);
+    }
+
+    /** @param compact scan exactly what a compact mirror contains (hidden files out as well, except .gitignore) */
+    public static Globs forScan(List<String> extra, boolean compact) {
+        var patterns = new ArrayList<>(COMPACT_EXCLUDES);
+        patterns.addAll(extra);
+        return withDefaults(patterns, compact);
+    }
+
     private static final Globs COMPACT = withDefaults(List.of(), true);
 
     /**

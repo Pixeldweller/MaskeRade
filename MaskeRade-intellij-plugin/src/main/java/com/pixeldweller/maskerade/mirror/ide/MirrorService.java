@@ -168,7 +168,7 @@ public final class MirrorService implements Disposable {
             Messages.showErrorDialog(project, "The export must not be inside the project.", "MaskeRade");
             return;
         }
-        FileDocumentManager.getInstance().saveAllDocuments();
+        saveAllDocuments();
         var s = settings();
         var options = new MirrorOptions(s.excludeGlobList(), s.copyBinaries, new HashSet<>(data().releasedBinaries), List.of(),
                 true, false, false);
@@ -199,7 +199,7 @@ public final class MirrorService implements Disposable {
 
             @Override
             public void onThrowable(@NotNull Throwable error) {
-                notifyUser("Export failed", error.getMessage(), NotificationType.ERROR);
+                notifyUser("Export failed", MirrorService.describe(error), NotificationType.ERROR);
             }
         }.queue();
     }
@@ -228,7 +228,7 @@ public final class MirrorService implements Disposable {
                         + "Unveil them first?\n\nRebuild anyway?", "MaskeRade", Messages.getWarningIcon()) != Messages.YES) {
             return;
         }
-        FileDocumentManager.getInstance().saveAllDocuments();
+        saveAllDocuments();
         busy = true;
         fireChanged();
         new Task.Backgroundable(project, "MaskeRade: creating the mirror", true) {
@@ -271,7 +271,7 @@ public final class MirrorService implements Disposable {
 
             @Override
             public void onThrowable(@NotNull Throwable error) {
-                notifyUser("Mirror not created", error.getMessage(), NotificationType.ERROR);
+                notifyUser("Mirror not created", MirrorService.describe(error), NotificationType.ERROR);
             }
 
             @Override
@@ -356,7 +356,7 @@ public final class MirrorService implements Disposable {
             Messages.showInfoMessage(project, "There is no mirror yet.", "MaskeRade");
             return;
         }
-        FileDocumentManager.getInstance().saveAllDocuments();
+        saveAllDocuments();
         new Task.Backgroundable(project, "MaskeRade: collecting the model's changes", true) {
             List<FileChange> changes;
 
@@ -379,12 +379,13 @@ public final class MirrorService implements Disposable {
                     notifyUser("Nothing to unveil", "The model has not changed anything in the mirror.", NotificationType.INFORMATION);
                     return;
                 }
-                new UnveilDialog(project, changes).show();
+                com.intellij.openapi.application.WriteIntentReadAction.run(
+                        (Runnable) () -> new UnveilDialog(project, changes).show());
             }
 
             @Override
             public void onThrowable(@NotNull Throwable error) {
-                notifyUser("Unveil failed", error.getMessage(), NotificationType.ERROR);
+                notifyUser("Unveil failed", MirrorService.describe(error), NotificationType.ERROR);
             }
         }.queue();
     }
@@ -416,7 +417,7 @@ public final class MirrorService implements Disposable {
 
             @Override
             public void onThrowable(@NotNull Throwable error) {
-                notifyUser("Mirror not deleted", error.getMessage(), NotificationType.ERROR);
+                notifyUser("Mirror not deleted", MirrorService.describe(error), NotificationType.ERROR);
             }
 
             @Override
@@ -451,6 +452,31 @@ public final class MirrorService implements Disposable {
         } catch (Exception e) {
             notifyUser("Terminal not started", e.getMessage() + " — the mirror is at " + dir, NotificationType.WARNING);
         }
+    }
+
+    /**
+     * Saving documents needs the write-intent lock. Swing listeners (the Mirror tab's buttons) run on the EDT
+     * without it since IntelliJ 2024.x — "Access is allowed from write thread only".
+     */
+    private static void saveAllDocuments() {
+        com.intellij.openapi.application.WriteIntentReadAction.run(
+                (Runnable) () -> FileDocumentManager.getInstance().saveAllDocuments());
+    }
+
+    private static final com.intellij.openapi.diagnostic.Logger LOG =
+            com.intellij.openapi.diagnostic.Logger.getInstance(MirrorService.class);
+
+    /**
+     * A failure of a background task for a notification: the innermost cause with its type (a bare message like
+     * "null" says nothing). The full stack trace goes to idea.log as a warning — no red IDE error.
+     */
+    public static String describe(Throwable error) {
+        LOG.warn("MaskeRade task failed", error);
+        var cause = error;
+        while (cause.getCause() != null && cause.getCause() != cause) cause = cause.getCause();
+        var message = cause.getMessage();
+        return cause.getClass().getSimpleName() + (message == null || message.isBlank() ? "" : ": " + message)
+                + " (details in idea.log)";
     }
 
     public void notifyUser(String title, String content, NotificationType type) {

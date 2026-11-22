@@ -3,7 +3,7 @@
 IntelliJ IDEA plugin that **pseudonymizes a project before an AI agent works on it** and turns the agent's changes
 **back into the real names** afterwards.
 
-> **Version:** 0.1-alpha — targeting IntelliJ IDEA 2025.3+
+> **Version:** 0.2 — targeting IntelliJ IDEA 2025.3+
 
 The agent (Claude Code, Codex, …) never sees the real names — not in code, comments, file and package names,
 paths, build files or test data. MaskeRade works one step earlier than a proxy that replaces names in requests:
@@ -124,7 +124,7 @@ Deterministic and offline — no model, no network inside the plugin.
 
 ```bash
 ./gradlew --offline runIde       # sandbox IDE — open ../MaskeRade-sample there
-./gradlew --offline buildPlugin  # build/distributions/MaskeRade-0.1-alpha.zip
+./gradlew --offline buildPlugin  # build/distributions/MaskeRade-0.2.zip
 ./gradlew --offline test         # core tests (veil, scan, mirror — no IntelliJ API needed)
 ```
 

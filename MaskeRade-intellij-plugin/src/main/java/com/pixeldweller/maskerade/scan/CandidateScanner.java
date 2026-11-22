@@ -59,9 +59,14 @@ public final class CandidateScanner {
         public List<Term> existingTerms = List.of();
         public BooleanSupplier cancelled = () -> false;
         public DoubleConsumer progress = f -> {};
+        /** Output: documents treated as minified / generated (only patterns were searched). */
+        public int generatedSkipped;
     }
 
     private static final int MAX_LOCATIONS = 50;
+    /** The result list is cut off here — sorted by score, so nothing important is lost. */
+    public static final int MAX_CANDIDATES = 2000;
+    public static final int MIN_SCORE = 10;
 
     private static final Pattern PACKAGE = Pattern.compile("(?m)^\\s*package\\s+([\\w.]+)");
     private static final Pattern GROUP_ID = Pattern.compile("<groupId>\\s*([\\w.-]+)\\s*</groupId>");
@@ -71,8 +76,9 @@ public final class CandidateScanner {
                     + "(?:<[^>]*>\\s*)?[\\w.<>\\[\\],? ]+?\\s+(\\w+)\\s*\\(");
     private static final Pattern AUTHOR = Pattern.compile("@author\\s+(\\p{Lu}[\\p{L}'-]+(?:[ \\t]+\\p{Lu}[\\p{L}'-]+){1,3})");
     private static final Pattern DEVELOPER_NAME = Pattern.compile("<developer>[\\s\\S]*?<name>\\s*([^<]+?)\\s*</name>");
+    // starts only at a word start, bounded word length: linear on long tokens
     private static final Pattern COMPANY = Pattern.compile(
-            "(\\p{Lu}[\\p{L}&-]+(?:[ \\t]+\\p{Lu}[\\p{L}&-]+){0,3})[ \\t]+(GmbH|AG|KG|SE|OHG|UG|Ltd\\.?|Inc\\.?|LLC|Corp\\.?|B\\.V\\.)(?!\\p{L})");
+            "(?<![\\p{L}\\p{N}&-])(\\p{Lu}[\\p{L}&-]{1,40}(?:[ \\t]{1,3}\\p{Lu}[\\p{L}&-]{1,40}){0,3})[ \\t]{1,3}(GmbH|AG|KG|SE|OHG|UG|Ltd\\.?|Inc\\.?|LLC|Corp\\.?|B\\.V\\.)(?!\\p{L})");
     private static final Pattern NAME_FIELD = Pattern.compile(
             "\"(?:name|fullName|customer|kunde|kundin|author|owner|contact)\"\\s*:\\s*\"(\\p{Lu}\\p{Ll}+(?:[ \\t]+\\p{Lu}\\p{Ll}+){1,2})\"");
     private static final Pattern QUOTED_NAME = Pattern.compile("\"(\\p{Lu}\\p{Ll}+[ \\t]+\\p{Lu}\\p{Ll}+)\"");
@@ -126,8 +132,12 @@ public final class CandidateScanner {
             if (in.cancelled.getAsBoolean()) throw new CancellationException();
             in.progress.accept((double) done++ / Math.max(1, in.documents.size()));
             var lines = new LineIndex(doc.text());
-            overrideNames.addAll(regexOverrides(doc));
             fixedFindings(doc, lines, fixed);
+            if (looksGenerated(doc.text())) {
+                in.generatedSkipped++;
+                continue;
+            }
+            overrideNames.addAll(regexOverrides(doc));
             multiWordNames(doc, lines, names, in);
             packageSegments(doc, words, excluded, in);
             tokens(doc, lines, words, excluded, overrideNames, in);
@@ -148,8 +158,11 @@ public final class CandidateScanner {
             var existing = candidates.get(s.key);
             if (existing == null) candidates.put(s.key, c);
         }
+        // the best ones; everything below MIN_SCORE is noise (a word seen once in a single file)
         return candidates.values().stream()
+                .filter(c -> c.score() >= MIN_SCORE || c.secret())
                 .sorted(Comparator.comparingInt(Candidate::score).reversed().thenComparing(Candidate::term))
+                .limit(MAX_CANDIDATES)
                 .toList();
     }
 
@@ -234,6 +247,7 @@ public final class CandidateScanner {
 
     private static void fixedFindings(Document doc, LineIndex lines, Map<String, Stat> fixed) {
         var segments = SourceSplitter.split(doc.path(), doc.text());
+        var cache = new LineCache(doc.path(), lines);
         for (var f : PatternDetector.find(doc.path(), doc.text())) {
             var key = f.secret() ? f.value() : f.value().toLowerCase(Locale.ROOT);
             var s = fixed.computeIfAbsent(key, Stat::new);
@@ -243,8 +257,9 @@ public final class CandidateScanner {
             s.reasons.add(f.reason());
             int line = lines.lineOf(f.start());
             s.hit(doc, f.value(), line, f.secret() ? "(secret)" : TextCodec.snippet(doc.text(), f.start(), f.end()));
+            cache.moveTo(line);
             var contract = SourceSplitter.inComment(segments, f.start()) ? null
-                    : Contracts.reasonFor(doc.path(), lines.lineText(line), f.start() - lines.startOf(line));
+                    : cache.contracts().reasonAt(f.start() - lines.startOf(line));
             if (contract != null) {
                 s.contract = true;
                 s.contractReasons.add(contract);
@@ -333,13 +348,13 @@ public final class CandidateScanner {
     private static void tokens(Document doc, LineIndex lines, Map<String, Stat> words, Set<String> excluded,
                                Set<String> overrideNames, Input in) {
         var text = doc.text();
+        var cache = new LineCache(doc.path(), lines);
         for (var seg : SourceSplitter.split(doc.path(), text)) {
-            var region = text.substring(seg.start(), seg.end());
-            var m = (seg.code() ? IDENT : WORDISH).matcher(region);
+            var m = (seg.code() ? IDENT : WORDISH).matcher(text).region(seg.start(), seg.end());
             while (m.find()) {
                 var token = m.group();
                 if (seg.code() && overrideNames.contains(token)) continue;
-                int tokenStart = seg.start() + m.start();
+                int tokenStart = m.start();
                 int offset = 0;
                 for (var part : Words.split(token)) {
                     int partStart = token.indexOf(part, offset);
@@ -350,18 +365,19 @@ public final class CandidateScanner {
                     var s = words.computeIfAbsent(key, Stat::new);
                     int abs = tokenStart + partStart;
                     int line = lines.lineOf(abs);
-                    var lineText = lines.lineText(line);
-                    s.hit(doc, part, line, TextCodec.snippet(text, tokenStart, tokenStart + token.length()));
+                    cache.moveTo(line);
+                    s.hit(doc, part, line, s.locations.size() < MAX_LOCATIONS
+                            ? TextCodec.snippet(text, tokenStart, tokenStart + token.length()) : null);
                     if (seg.code()) {
                         s.identifier = true;
                     } else {
                         if (Words.caseOf(part) == Words.Case.CAPITAL && partStart == 0 && !sentenceStart(text, tokenStart)) {
                             s.properNoun = true;
                         }
-                        var marker = markerKind(lineText);
+                        var marker = cache.marker();
                         if (marker != null && (s.markerKind == null || marker == TermKind.PERSON)) s.markerKind = marker;
                     }
-                    var contract = seg.comment() ? null : Contracts.reasonFor(doc.path(), lineText, abs - lines.startOf(line));
+                    var contract = seg.comment() ? null : cache.contracts().reasonAt(abs - lines.startOf(line));
                     if (contract != null) {
                         s.contract = true;
                         s.contractReasons.add(contract);
@@ -369,6 +385,60 @@ public final class CandidateScanner {
                 }
             }
         }
+    }
+
+    /**
+     * Per-line results, computed once per line instead of once per word — a minified file is one huge line,
+     * and re-reading it for every word made the scan quadratic.
+     */
+    private static final class LineCache {
+        private final String path;
+        private final LineIndex lines;
+        private int line = -1;
+        private String text;
+        private TermKind marker;
+        private boolean markerDone;
+        private Contracts.Line contracts;
+
+        LineCache(String path, LineIndex lines) {
+            this.path = path;
+            this.lines = lines;
+        }
+
+        void moveTo(int line) {
+            if (line == this.line) return;
+            this.line = line;
+            text = lines.lineText(line);
+            markerDone = false;
+            contracts = null;
+        }
+
+        TermKind marker() {
+            if (!markerDone) {
+                marker = markerKind(text);
+                markerDone = true;
+            }
+            return marker;
+        }
+
+        Contracts.Line contracts() {
+            if (contracts == null) contracts = Contracts.line(path, text);
+            return contracts;
+        }
+    }
+
+    /** Minified or generated: some line is longer than this. Only patterns (hosts, mails, secrets) are searched. */
+    private static final int GENERATED_LINE_LENGTH = 5000;
+
+    static boolean looksGenerated(String text) {
+        int lineStart = 0;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '\n') {
+                if (i - lineStart > GENERATED_LINE_LENGTH) return true;
+                lineStart = i + 1;
+            }
+        }
+        return text.length() - lineStart > GENERATED_LINE_LENGTH;
     }
 
     private static TermKind markerKind(String line) {

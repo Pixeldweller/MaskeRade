@@ -55,6 +55,7 @@ public final class ScannerPanel extends SimpleToolWindowPanel implements Disposa
     private final ComboBox<Object> kindFilter = new ComboBox<>();
     private final JSpinner minScore;
     private final JBLabel status = new JBLabel("Run the scan to find terms worth veiling.");
+    private String scanInfo = "";
 
     public ScannerPanel(Project project, Runnable onTermsChanged) {
         super(true, true);
@@ -108,17 +109,22 @@ public final class ScannerPanel extends SimpleToolWindowPanel implements Disposa
     public void runScan() {
         status.setText("Scanning…");
         new Task.Backgroundable(project, "MaskeRade: scanning for terms worth veiling", true) {
-            List<Candidate> result;
+            ProjectScanner.Result result;
+            long started;
 
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
+                started = System.currentTimeMillis();
                 result = ProjectScanner.scan(project, indicator);
             }
 
             @Override
             public void onSuccess() {
                 all.clear();
-                all.addAll(result);
+                all.addAll(result.candidates());
+                scanInfo = result.files() + " files in " + (System.currentTimeMillis() - started) / 1000 + " s"
+                        + (result.generatedSkipped() > 0 ? ", " + result.generatedSkipped() + " minified/generated (patterns only)" : "")
+                        + (result.psiSkipped() ? ", indexing was running: overrides via @Override only" : "");
                 applyFilter();
             }
 
@@ -129,7 +135,7 @@ public final class ScannerPanel extends SimpleToolWindowPanel implements Disposa
 
             @Override
             public void onThrowable(@NotNull Throwable error) {
-                status.setText("Scan failed: " + error.getMessage());
+                status.setText("Scan failed: " + MirrorService.describe(error));
             }
         }.queue();
     }
@@ -144,7 +150,8 @@ public final class ScannerPanel extends SimpleToolWindowPanel implements Disposa
         model.fireTableDataChanged();
         long secrets = all.stream().filter(Candidate::secret).count();
         status.setText(shown.size() + " of " + all.size() + " candidates shown"
-                + (secrets > 0 ? " — " + secrets + " secret(s): they do not belong into the repository" : ""));
+                + (secrets > 0 ? " — " + secrets + " secret(s): they do not belong into the repository" : "")
+                + (scanInfo.isEmpty() ? "" : "   ·   " + scanInfo));
     }
 
     private List<Candidate> selected() {
@@ -160,7 +167,8 @@ public final class ScannerPanel extends SimpleToolWindowPanel implements Disposa
         find.setWholeWordsOnly(false);
         find.setRegularExpressions(false);
         find.setProjectScope(true);
-        FindInProjectManager.getInstance(project).startFindInProject(find);
+        // double-click is a plain Swing event: no write-intent lock on the EDT (IntelliJ 2024.x+)
+        com.intellij.openapi.application.WriteIntentReadAction.run((Runnable) () -> FindInProjectManager.getInstance(project).startFindInProject(find));
     }
 
     private void addToVeilList(List<Candidate> candidates) {
@@ -170,7 +178,8 @@ public final class ScannerPanel extends SimpleToolWindowPanel implements Disposa
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 var generator = new PlaceholderGenerator(SeedStore.seed(project));
-                var corpus = String.join("\n", ProjectTexts.collect(project).values());
+                indicator.setText("MaskeRade: reading the project for collision checks");
+                var occurrences = new ProjectTexts.Occurrences(ProjectTexts.collect(project));
                 var store = TermStore.getInstance();
                 var terms = new ArrayList<>(store.terms(project));
                 var used = new HashSet<String>();
@@ -183,7 +192,7 @@ public final class ScannerPanel extends SimpleToolWindowPanel implements Disposa
                 for (var c : candidates) {
                     var term = new Term(c.term(), "", c.kind());
                     if (!keys.add(term.key())) continue;
-                    Predicate<String> taken = p -> used.contains(Words.key(p)) || Collisions.occursIn(p, corpus)
+                    Predicate<String> taken = p -> used.contains(Words.key(p)) || occurrences.contains(p)
                             || TermsPanel.prefixClash(p, used);
                     term.placeholder = generator.suggest(c.kind(), c.term(), taken);
                     term.note = c.secret() ? "secret — remove it from the repository" : c.contract() ? "external contract" : "";
