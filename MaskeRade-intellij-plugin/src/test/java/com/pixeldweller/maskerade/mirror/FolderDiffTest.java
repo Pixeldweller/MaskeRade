@@ -205,6 +205,29 @@ class FolderDiffTest {
     }
 
     @Test
+    void filesAboveTheSizeLimitAreLeftOutAndListed() throws Exception {
+        var original = SampleFixture.copySample(work.resolve("original"));
+        var big = "x".repeat(300 * 1024) + "\n";
+        Files.writeString(original.resolve("src/main/resources/dump.sql"), big);
+        var export = work.resolve("export");
+        var none = List.<com.pixeldweller.maskerade.model.Term>of();
+        var common = com.pixeldweller.maskerade.scan.CommonWords.builtIn();
+        var report = new MirrorBuilder(original, export, com.pixeldweller.maskerade.veil.VeilEngine.of(none, common),
+                new com.pixeldweller.maskerade.veil.ResidueFinder(none, common),
+                MirrorOptions.defaults().withGuards(false).withGit(false).withMaxFileSize(256 * 1024)).build();
+        assertFalse(Files.exists(export.resolve("src/main/resources/dump.sql")));
+        assertEquals(List.of("src/main/resources/dump.sql"), report.tooLarge.stream().map(MirrorReport.TooLarge::path).toList());
+        assertTrue(report.summary().contains("1 too large"), report.summary());
+
+        // in a folder comparison the big file is skipped on both sides — not reported as deleted
+        Files.writeString(export.resolve("src/main/resources/dump.sql"), "small now\n");
+        var result = new FolderDiff(FolderDiff.Side.plain(original), FolderDiff.Side.plain(export), Globs.withDefaults(List.of()), null)
+                .ignoreMissingOnRight(true).skipLargerThan(256 * 1024).compare();
+        assertTrue(result.entries().isEmpty(), result.entries().toString());
+        assertTrue(result.warnings().stream().anyMatch(w -> w.contains("dump.sql skipped")), result.warnings().toString());
+    }
+
+    @Test
     void hiddenAndGeneratedFilesAreRecognized() {
         for (var p : List.of(".idea/workspace.xml", ".claude/settings.local.json", "target/classes/A.class", "build/x",
                 "web/package-lock.json", ".editorconfig", "src/.DS_Store", "app.min.js")) {

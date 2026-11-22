@@ -24,6 +24,9 @@ public final class MirrorReport {
     /** A replacement where the mirror now behaves differently from the original. */
     public record Contract(String path, int line, String term, String reason, boolean test) {}
 
+    /** A file left out because it is larger than the configured limit. */
+    public record TooLarge(String path, long size) {}
+
     /** A Base64 / \\u-encoded real term in the original — reported, never replaced silently. */
     public record Encoded(String path, ResidueFinder.Hit hit) {}
 
@@ -34,6 +37,7 @@ public final class MirrorReport {
     /** Files left out only because the mirror is compact (hidden, generated, lock files …). */
     public int compactSkipped;
     public final List<BinaryFile> binaries = new ArrayList<>();
+    public final List<TooLarge> tooLarge = new ArrayList<>();
     public final List<Irreversible> irreversible = new ArrayList<>();
     public final List<Residue> residues = new ArrayList<>();
     public final List<Contract> contracts = new ArrayList<>();
@@ -47,6 +51,7 @@ public final class MirrorReport {
         return textFiles + " files veiled (" + replacements + " replacements, " + renamedPaths + " paths renamed), "
                 + binaries.stream().filter(b -> !b.copied()).count() + " binary files left out, "
                 + (compactSkipped > 0 ? compactSkipped + " files left out (compact), " : "")
+                + (tooLarge.isEmpty() ? "" : tooLarge.size() + " too large, ")
                 + irreversible.size() + " not reversible, " + residues.size() + " residues, "
                 + contracts.size() + " external-contract places";
     }
@@ -61,6 +66,8 @@ public final class MirrorReport {
                         + "] \"" + r.hit.term().real + "\"  " + r.hit.snippet()).toList());
         section(sb, "Not reversible — left out of the mirror",
                 irreversible.stream().map(i -> "  " + i.path + "  " + i.reason).toList());
+        section(sb, "Larger than the size limit — left out",
+                tooLarge.stream().map(t -> "  " + t.path + " (" + t.size / 1024 + " KB)").toList());
         section(sb, "Binary files the model does not see",
                 binaries.stream().filter(b -> !b.copied()).map(b -> "  " + b.path + " (" + b.size + " bytes)"
                         + (b.hits.isEmpty() ? "" : "  contains: " + hitTerms(b.hits))).toList());

@@ -151,7 +151,8 @@ public final class FolderDiffDialog extends DialogWrapper {
                 new FolderDiff.Side(leftPath, unveilLeft.isSelected() ? engine : null),
                 new FolderDiff.Side(rightPath, unveilRight.isSelected() ? engine : null),
                 globs, service.residueFinder())
-                .ignoreMissingOnRight(ignoreMissing.isSelected());
+                .ignoreMissingOnRight(ignoreMissing.isSelected())
+                .skipLargerThan(settings.maxFileSizeBytes());
         summary.setText("Comparing…");
         new Task.Backgroundable(project, "MaskeRade: comparing folders", true) {
             FolderDiff.Result result;

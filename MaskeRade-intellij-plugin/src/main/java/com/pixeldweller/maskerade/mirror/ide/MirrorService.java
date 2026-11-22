@@ -148,7 +148,7 @@ public final class MirrorService implements Disposable {
         deny.add(Path.of(PathManager.getConfigPath()));
         deny.add(Path.of(PathManager.getOptionsPath()));
         return new MirrorOptions(s.excludeGlobList(), s.copyBinaries, new HashSet<>(data().releasedBinaries), deny,
-                s.compactMirror, s.agentGuards, true);
+                s.compactMirror, s.agentGuards, true, s.maxFileSizeBytes());
     }
 
     // ── plain export ────────────────────────────────────────────────────────────
@@ -171,7 +171,7 @@ public final class MirrorService implements Disposable {
         saveAllDocuments();
         var s = settings();
         var options = new MirrorOptions(s.excludeGlobList(), s.copyBinaries, new HashSet<>(data().releasedBinaries), List.of(),
-                true, false, false);
+                true, false, false, s.maxFileSizeBytes());
         new Task.Backgroundable(project, "MaskeRade: exporting a compact copy", true) {
             MirrorReport report;
 

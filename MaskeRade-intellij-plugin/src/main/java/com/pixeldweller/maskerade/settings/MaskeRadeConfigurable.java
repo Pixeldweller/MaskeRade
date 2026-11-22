@@ -25,6 +25,7 @@ public final class MaskeRadeConfigurable implements Configurable {
     private JBCheckBox copyBinaries;
     private JBCheckBox compactMirror;
     private JBCheckBox agentGuards;
+    private JSpinner maxFileSizeKb;
     private JBCheckBox buildAfterCreate;
     private JBTextField buildCommand;
 
@@ -49,6 +50,7 @@ public final class MaskeRadeConfigurable implements Configurable {
         copyBinaries = new JBCheckBox("Copy binary files into the mirror (unchanged)");
         compactMirror = new JBCheckBox("Compact mirror: only what is needed to understand the project");
         agentGuards = new JBCheckBox("Write agent guards into the mirror (.claude/settings.json, .claude/CLAUDE.md)");
+        maxFileSizeKb = new JSpinner(new SpinnerNumberModel(0, 0, 10_000_000, 256));
         buildAfterCreate = new JBCheckBox("Build the mirror after creating it (offline)");
         buildCommand = new JBTextField();
 
@@ -59,6 +61,9 @@ public final class MaskeRadeConfigurable implements Configurable {
                 .addLabeledComponent("Exclude (globs):", new JBScrollPane(excludeGlobs))
                 .addComponentToRightColumn(hint("One per line, in addition to .git, .idea, *.iml, target, build, out, node_modules, "
                         + ".gradle, .claude, logs. A pattern without '/' matches any path segment, e.g. secrets.properties or docs/**."))
+                .addLabeledComponent("Skip files larger than (KB):", maxFileSizeKb)
+                .addComponentToRightColumn(hint("0 = no limit. Applies to the mirror, the compact export, \"Compare Folders\" and the "
+                        + "scanner; skipped files are listed in the report. The scanner never reads files above 2 MB."))
                 .addLabeledComponent("Minimum score:", minScore)
                 .addComponentToRightColumn(hint("Scanner candidates below this score are hidden."))
                 .addLabeledComponent("Exception words:", new JBScrollPane(exceptionWords))
@@ -95,6 +100,7 @@ public final class MaskeRadeConfigurable implements Configurable {
                 || copyBinaries.isSelected() != s.copyBinaries
                 || compactMirror.isSelected() != s.compactMirror
                 || agentGuards.isSelected() != s.agentGuards
+                || (int) maxFileSizeKb.getValue() != s.maxFileSizeKb
                 || buildAfterCreate.isSelected() != s.buildAfterCreate
                 || !Objects.equals(buildCommand.getText().trim(), s.buildCommand);
     }
@@ -109,6 +115,7 @@ public final class MaskeRadeConfigurable implements Configurable {
         s.copyBinaries = copyBinaries.isSelected();
         s.compactMirror = compactMirror.isSelected();
         s.agentGuards = agentGuards.isSelected();
+        s.maxFileSizeKb = (int) maxFileSizeKb.getValue();
         s.buildAfterCreate = buildAfterCreate.isSelected();
         s.buildCommand = buildCommand.getText().trim();
     }
@@ -123,6 +130,7 @@ public final class MaskeRadeConfigurable implements Configurable {
         copyBinaries.setSelected(s.copyBinaries);
         compactMirror.setSelected(s.compactMirror);
         agentGuards.setSelected(s.agentGuards);
+        maxFileSizeKb.setValue(s.maxFileSizeKb);
         buildAfterCreate.setSelected(s.buildAfterCreate);
         buildCommand.setText(s.buildCommand);
     }

@@ -87,6 +87,11 @@ public final class MirrorBuilder {
             progress.accept("Veiling " + (++done) + "/" + files.size());
             byte[] bytes;
             try {
+                long size = Files.size(original.resolve(rel));
+                if (options.tooLarge(size)) {
+                    report.tooLarge.add(new MirrorReport.TooLarge(rel, size));
+                    continue;
+                }
                 bytes = Files.readAllBytes(original.resolve(rel));
             } catch (IOException e) {
                 // locked by another process, no permission, cloud placeholder … — leave it out, don't abort

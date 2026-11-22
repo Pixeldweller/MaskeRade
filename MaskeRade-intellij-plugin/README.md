@@ -115,8 +115,9 @@ Deterministic and offline — no model, no network inside the plugin.
 - Tool window **MaskeRade** (right) with the tabs **Terms**, **Scanner**, **Mirror**.
 - **Tools → MaskeRade** and *Find Action*: edit veil list, scan, create mirror, open in terminal / explorer,
   unveil, compare folders → patch, refresh baseline, delete mirror.
-- **Settings → Tools → MaskeRade**: mirror folder, exclusion globs, minimum score, exception words, copy binary
-  files, compact mirror, build after creating.
+- **Settings → Tools → MaskeRade**: mirror folder, exclusion globs, size limit (files larger than N KB are left out
+  of mirror, export, folder comparison and scan, and listed in the report), minimum score, exception words, copy
+  binary files, compact mirror, agent guards, build after creating.
 
 ## Building
 

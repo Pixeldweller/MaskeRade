@@ -19,12 +19,14 @@ import java.util.Set;
  * @param writeGuards      write .claude/settings.json and .claude/CLAUDE.md for the agent into the mirror
  * @param initGit          give the copy a git repository with a "baseline" commit (needed for "Unveil Changes…";
  *                         a plain export goes without — compare it later with "Compare Folders")
+ * @param maxFileSize      files larger than this many bytes are left out and listed; 0 = no limit
  */
 public record MirrorOptions(List<String> excludeGlobs, boolean copyBinaries, Set<String> releasedBinaries,
-                            List<Path> denyReadPaths, boolean compact, boolean writeGuards, boolean initGit) {
+                            List<Path> denyReadPaths, boolean compact, boolean writeGuards, boolean initGit,
+                            long maxFileSize) {
 
     public static MirrorOptions defaults() {
-        return new MirrorOptions(List.of(), false, Set.of(), List.of(), false, true, true);
+        return new MirrorOptions(List.of(), false, Set.of(), List.of(), false, true, true, 0);
     }
 
     /** Globs for creating the mirror (compact if chosen). */
@@ -40,21 +42,29 @@ public record MirrorOptions(List<String> excludeGlobs, boolean copyBinaries, Set
         return Globs.withDefaults(excludeGlobs, false);
     }
 
+    public boolean tooLarge(long size) {
+        return maxFileSize > 0 && size > maxFileSize;
+    }
+
     public MirrorOptions withDenyReadPaths(List<Path> paths) {
         var all = new ArrayList<>(denyReadPaths);
         all.addAll(paths);
-        return new MirrorOptions(excludeGlobs, copyBinaries, releasedBinaries, all, compact, writeGuards, initGit);
+        return new MirrorOptions(excludeGlobs, copyBinaries, releasedBinaries, all, compact, writeGuards, initGit, maxFileSize);
     }
 
     public MirrorOptions withCompact(boolean compact) {
-        return new MirrorOptions(excludeGlobs, copyBinaries, releasedBinaries, denyReadPaths, compact, writeGuards, initGit);
+        return new MirrorOptions(excludeGlobs, copyBinaries, releasedBinaries, denyReadPaths, compact, writeGuards, initGit, maxFileSize);
     }
 
     public MirrorOptions withGuards(boolean writeGuards) {
-        return new MirrorOptions(excludeGlobs, copyBinaries, releasedBinaries, denyReadPaths, compact, writeGuards, initGit);
+        return new MirrorOptions(excludeGlobs, copyBinaries, releasedBinaries, denyReadPaths, compact, writeGuards, initGit, maxFileSize);
     }
 
     public MirrorOptions withGit(boolean initGit) {
-        return new MirrorOptions(excludeGlobs, copyBinaries, releasedBinaries, denyReadPaths, compact, writeGuards, initGit);
+        return new MirrorOptions(excludeGlobs, copyBinaries, releasedBinaries, denyReadPaths, compact, writeGuards, initGit, maxFileSize);
+    }
+
+    public MirrorOptions withMaxFileSize(long maxFileSize) {
+        return new MirrorOptions(excludeGlobs, copyBinaries, releasedBinaries, denyReadPaths, compact, writeGuards, initGit, maxFileSize);
     }
 }

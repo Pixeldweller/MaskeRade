@@ -33,6 +33,12 @@ public final class MaskeRadeSettings implements PersistentStateComponent<MaskeRa
         public boolean compactMirror = false;
         /** Write .claude/settings.json (deny rules) and .claude/CLAUDE.md into the mirror; off = no .claude at all. */
         public boolean agentGuards = true;
+        /** Files larger than this (KB) are left out of mirror, export, folder comparison and scan; 0 = no limit. */
+        public int maxFileSizeKb = 0;
+
+        public long maxFileSizeBytes() {
+            return maxFileSizeKb <= 0 ? 0 : maxFileSizeKb * 1024L;
+        }
         public boolean buildAfterCreate = false;
         /** Empty = Maven bundled with the IDE / the project's Gradle wrapper. */
         public String buildCommand = "";

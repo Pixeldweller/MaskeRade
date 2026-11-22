@@ -31,11 +31,12 @@ final class ProjectTexts {
         var base = Path.of(project.getBasePath());
         var settings = MaskeRadeSettings.getInstance(project).getState();
         var globs = Globs.forScan(settings.excludeGlobList(), settings.compactMirror);
+        long limit = settings.maxFileSizeBytes() > 0 ? Math.min(2_000_000, settings.maxFileSizeBytes()) : 2_000_000;
         var files = ReadAction.nonBlocking(() -> {
             var out = new ArrayList<Object[]>();
             ProjectFileIndex.getInstance(project).iterateContent(file -> {
                 ProgressManager.checkCanceled();
-                if (file.isDirectory() || file.getLength() > 2_000_000 || file.getFileType().isBinary()) return true;
+                if (file.isDirectory() || file.getLength() > limit || file.getFileType().isBinary()) return true;
                 Path p;
                 try {
                     p = file.toNioPath();

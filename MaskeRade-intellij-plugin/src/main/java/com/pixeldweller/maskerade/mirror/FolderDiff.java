@@ -44,6 +44,8 @@ public final class FolderDiff {
     private final Globs globs;
     private final ResidueFinder realTerms;
     private boolean ignoreMissingOnRight;
+    private long maxFileSize;
+    private final java.util.Set<String> tooLarge = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     private BooleanSupplier cancelled = () -> false;
 
     /** @param realTerms finds real terms in a veiled side (a leak), may be null */
@@ -60,6 +62,12 @@ public final class FolderDiff {
         return this;
     }
 
+    /** Files larger than this many bytes are not compared (0 = no limit); they are listed in the warnings. */
+    public FolderDiff skipLargerThan(long maxFileSize) {
+        this.maxFileSize = maxFileSize;
+        return this;
+    }
+
     public FolderDiff cancelledBy(BooleanSupplier cancelled) {
         this.cancelled = cancelled;
         return this;
@@ -67,8 +75,14 @@ public final class FolderDiff {
 
     public Result compare() throws IOException {
         var warnings = new ArrayList<String>();
+        tooLarge.clear();
         var l = index(left, warnings);
         var r = index(right, warnings);
+        // too large on one side = not compared at all (otherwise it would show up as added or deleted)
+        tooLarge.forEach(p -> {
+            l.remove(p);
+            r.remove(p);
+        });
         var entries = new ArrayList<Entry>();
         int ignored = 0;
         var paths = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
@@ -103,6 +117,14 @@ public final class FolderDiff {
         var out = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
         for (var rel : MirrorBuilder.listFiles(side.root(), globs)) {
             var mapped = side.unveil() == null ? rel : side.unveil().unveilPath(rel);
+            if (maxFileSize > 0) {
+                long size = Files.size(side.root().resolve(rel));
+                if (size > maxFileSize) {
+                    warnings.add(side.root() + ": " + rel + " skipped (" + size / 1024 + " KB, larger than the limit)");
+                    tooLarge.add(mapped);
+                    continue;
+                }
+            }
             var previous = out.putIfAbsent(mapped, rel);
             if (previous != null) warnings.add(side.root() + ": " + rel + " and " + previous + " both map to " + mapped);
             if (side.unveil() != null && realTerms != null && !realTerms.findInText(rel).isEmpty()) {

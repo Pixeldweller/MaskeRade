@@ -137,9 +137,10 @@ public final class ProjectScanner {
         var globs = Globs.forScan(settings.excludeGlobList(), settings.compactMirror);
         var index = ProjectFileIndex.getInstance(project);
         var refs = new ArrayList<FileRef>();
+        long limit = settings.maxFileSizeBytes() > 0 ? Math.min(MAX_FILE_SIZE, settings.maxFileSizeBytes()) : MAX_FILE_SIZE;
         index.iterateContent(file -> {
             ProgressManager.checkCanceled();
-            if (file.isDirectory() || file.getLength() > MAX_FILE_SIZE || file.getFileType().isBinary()) return true;
+            if (file.isDirectory() || file.getLength() > limit || file.getFileType().isBinary()) return true;
             var rel = relative(base, file);
             if (rel != null && !globs.excludes(rel)) refs.add(new FileRef(file, rel, index.isInTestSourceContent(file)));
             return true;
